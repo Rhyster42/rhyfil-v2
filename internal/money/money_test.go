@@ -11,7 +11,7 @@ import (
 type vectors struct {
 	Tax []struct {
 		Amount, PPM, Expect int64
-		Note               string
+		Note                string
 	}
 	Allocate []struct {
 		Total   int64

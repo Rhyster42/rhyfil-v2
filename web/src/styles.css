@@ -1,16 +1,24 @@
+/* Coffee POS. Built for a landscape tablet at arm's length: big targets,
+   strong contrast, nothing that needs precision. */
+
 :root {
   --bg: #f6f2ec;
   --surface: #ffffff;
   --surface-2: #efe8df;
+  --surface-3: #e4dacd;
   --text: #1f1a16;
   --muted: #6b6159;
   --border: #ddd3c7;
   --accent: #6b3f1f;
   --accent-strong: #3b2516;
+  --accent-soft: #f1e4d6;
   --on-accent: #ffffff;
   --ok: #2f7d4f;
+  --ok-soft: #e1f2e7;
   --warn: #9a5b00;
+  --warn-soft: #fff1d6;
   --danger: #b3261e;
+  --danger-soft: #fde4e1;
   --radius: 12px;
   --tap: 56px;
   color-scheme: light;
@@ -18,6 +26,7 @@
   color: var(--text);
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
+  font-variant-numeric: tabular-nums;
 }
 
 *,
@@ -35,20 +44,440 @@ body,
 
 body {
   background: var(--bg);
-  /* No double-tap zoom or text selection on a touch register. */
+  /* No double-tap zoom or accidental text selection on a touch register. */
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 button {
   font: inherit;
   color: inherit;
+  cursor: pointer;
 }
 
-.splash {
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 0 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 17px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+.btn-ok {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #fff;
+}
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+}
+.btn-block {
+  width: 100%;
+}
+.btn-lg {
+  min-height: 72px;
+  font-size: 21px;
+}
+.btn-sm {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 15px;
+}
+.btn:focus-visible,
+.pin-key:focus-visible,
+.nav-btn:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 2px;
+}
+
+/* ---------- Forms ---------- */
+
+.field {
   display: grid;
-  place-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  min-width: 0;
+}
+.field label,
+.field .label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.field-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.input {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 18px;
+}
+select.input {
+  appearance: auto;
+}
+.input:focus {
+  outline: 3px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-color: var(--accent);
+}
+.error-text {
+  color: var(--danger);
+  font-weight: 600;
+}
+.ok-text {
+  color: var(--ok);
+  font-weight: 600;
+}
+.muted {
+  color: var(--muted);
+}
+
+/* ---------- Pages and cards ---------- */
+
+.center-page {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: 24px;
+}
+.card {
+  width: min(560px, 100%);
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgb(40 20 0 / 0.06);
+}
+.card h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+.placeholder {
+  display: grid;
+  place-items: center;
   height: 100%;
-  text-align: center;
+  color: var(--muted);
+  font-size: 20px;
+}
+
+/* ---------- Sign-in ---------- */
+
+.signin-page {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  height: 100%;
+}
+.signin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--accent-strong);
+  color: #f6f2ec;
+}
+.signin-header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+  width: min(820px, 100%);
+}
+.staff-tile {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  min-height: 150px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  font-size: 21px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgb(40 20 0 / 0.05);
+}
+.staff-tile:active {
+  transform: translateY(1px);
+  background: var(--accent-soft);
+}
+.tile-sub {
+  font-size: 14px;
+  font-weight: 600;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 26px;
+}
+
+/* ---------- PIN pad ---------- */
+
+.pinpad {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: min(320px, 100%);
+  margin: 0 auto;
+}
+.pinpad-title {
+  margin: 4px 0 0;
+  font-size: 24px;
+}
+.pinpad-hint {
+  margin: 0;
+}
+.pin-dots {
+  display: flex;
+  gap: 14px;
+  min-height: 22px;
+  margin-top: 8px;
+}
+.pin-dot {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+}
+.pin-dot.filled {
+  background: var(--accent);
+}
+.pin-error {
+  min-height: 1.2em;
+  margin: 0;
+}
+.pin-keys {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+.pin-key {
+  height: 68px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-2);
+  font-size: 28px;
+  font-weight: 600;
+}
+.pin-key:active:not(:disabled) {
+  background: var(--surface-3);
+}
+.pin-key-muted {
+  font-size: 18px;
+  color: var(--muted);
+}
+.pin-key:disabled {
+  visibility: hidden;
+}
+.shake {
+  animation: shake 0.3s;
+}
+@keyframes shake {
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}
+
+/* ---------- Sheets (modals) ---------- */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(25 15 8 / 0.45);
+}
+.sheet {
+  width: min(480px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.25);
+}
+.sheet-wide {
+  width: min(900px, 100%);
+}
+.sheet-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.sheet-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.sheet-body {
+  padding: 20px;
+}
+
+/* ---------- Shell ---------- */
+
+.shell {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100%;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--accent-strong);
+  color: #f6f2ec;
+}
+.brand {
+  margin: 0 8px 0 4px;
+  font-size: 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.topnav {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
+}
+.nav-btn {
+  min-height: 46px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.nav-btn[aria-current='page'] {
+  background: rgb(255 255 255 / 0.18);
+}
+.who {
+  padding: 0 4px 0 8px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.main {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---------- Sync pill and banners ---------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.14);
+  color: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.pill-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #6fcf97;
+}
+.pill-warn .pill-dot {
+  background: #f2c94c;
+}
+.pill-bad {
+  background: #8f1f18;
+}
+.pill-bad .pill-dot {
+  background: #ffb4ab;
+}
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+  font-weight: 600;
+}
+.banner-warn {
+  background: var(--warn-soft);
+  color: #5c3700;
+}
+.banner-danger {
+  background: var(--danger-soft);
+  color: #7f1d16;
+}
+.banner-ok {
+  background: var(--ok-soft);
+  color: #1d4f31;
 }

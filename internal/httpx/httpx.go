@@ -19,6 +19,7 @@ type Error struct {
 	Status  int    `json:"-"`
 	Code    string `json:"code"`
 	Message string `json:"message"`
+	Details any    `json:"details,omitempty"`
 }
 
 func (e *Error) Error() string { return e.Message }

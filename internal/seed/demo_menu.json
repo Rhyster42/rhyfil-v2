@@ -1,0 +1,80 @@
+{
+  "taxRatePpm": 88750,
+  "categories": [
+    { "id": "espresso", "name": "Espresso", "color": "#6b3f1f" },
+    { "id": "brewed", "name": "Brewed & Tea", "color": "#8a5a2b" },
+    { "id": "cold", "name": "Cold", "color": "#2f5d7c" },
+    { "id": "bakery", "name": "Bakery", "color": "#a86a1c" },
+    { "id": "retail", "name": "Retail", "color": "#4a5d23" }
+  ],
+  "items": [
+    { "id": "latte", "categoryId": "espresso", "name": "Latte", "price": 450, "taxable": true, "groupIds": ["size", "temp", "milk", "shots", "syrups"] },
+    { "id": "cappuccino", "categoryId": "espresso", "name": "Cappuccino", "price": 425, "taxable": true, "groupIds": ["size", "milk", "shots", "syrups"] },
+    { "id": "flat-white", "categoryId": "espresso", "name": "Flat White", "price": 425, "taxable": true, "groupIds": ["milk", "shots"] },
+    { "id": "mocha", "categoryId": "espresso", "name": "Mocha", "price": 500, "taxable": true, "groupIds": ["size", "temp", "milk", "shots", "whip"] },
+    { "id": "americano", "categoryId": "espresso", "name": "Americano", "price": 350, "taxable": true, "groupIds": ["size", "temp", "shots", "splash"] },
+    { "id": "cortado", "categoryId": "espresso", "name": "Cortado", "price": 375, "taxable": true, "groupIds": ["milk"] },
+    { "id": "espresso", "categoryId": "espresso", "name": "Espresso", "price": 300, "taxable": true, "groupIds": ["shots"] },
+    { "id": "drip", "categoryId": "brewed", "name": "Drip Coffee", "price": 275, "taxable": true, "groupIds": ["size", "splash"] },
+    { "id": "pour-over", "categoryId": "brewed", "name": "Pour Over", "price": 450, "taxable": true, "groupIds": ["splash"] },
+    { "id": "tea", "categoryId": "brewed", "name": "Hot Tea", "price": 300, "taxable": true, "groupIds": ["tea", "size"] },
+    { "id": "chai", "categoryId": "brewed", "name": "Chai Latte", "price": 475, "taxable": true, "groupIds": ["size", "temp", "milk"] },
+    { "id": "matcha", "categoryId": "brewed", "name": "Matcha Latte", "price": 525, "taxable": true, "groupIds": ["size", "temp", "milk", "syrups"] },
+    { "id": "cold-brew", "categoryId": "cold", "name": "Cold Brew", "price": 475, "taxable": true, "groupIds": ["size", "splash", "syrups"] },
+    { "id": "iced-tea", "categoryId": "cold", "name": "Iced Tea", "price": 325, "taxable": true, "groupIds": ["size"] },
+    { "id": "lemonade", "categoryId": "cold", "name": "Lemonade", "price": 350, "taxable": true, "groupIds": ["size"] },
+    { "id": "croissant", "categoryId": "bakery", "name": "Croissant", "price": 375, "taxable": true, "groupIds": ["warm"] },
+    { "id": "pain-chocolat", "categoryId": "bakery", "name": "Pain au Chocolat", "price": 425, "taxable": true, "groupIds": ["warm"] },
+    { "id": "muffin", "categoryId": "bakery", "name": "Blueberry Muffin", "price": 350, "taxable": true, "groupIds": ["warm"] },
+    { "id": "banana-bread", "categoryId": "bakery", "name": "Banana Bread", "price": 395, "taxable": true, "groupIds": ["warm"] },
+    { "id": "cookie", "categoryId": "bakery", "name": "Choc Chip Cookie", "price": 275, "taxable": true, "groupIds": [] },
+    { "id": "beans", "categoryId": "retail", "name": "Whole Beans 12oz", "price": 1600, "taxable": false, "groupIds": [] },
+    { "id": "mug", "categoryId": "retail", "name": "Mug", "price": 1400, "taxable": true, "groupIds": [] }
+  ],
+  "groups": [
+    { "id": "size", "name": "Size", "min": 1, "max": 1, "options": [
+      { "id": "size-s", "name": "Small", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "size-m", "name": "Medium", "delta": 50, "default": true, "maxQty": 1 },
+      { "id": "size-l", "name": "Large", "delta": 100, "default": false, "maxQty": 1 }
+    ] },
+    { "id": "temp", "name": "Temperature", "min": 1, "max": 1, "options": [
+      { "id": "temp-hot", "name": "Hot", "delta": 0, "default": true, "maxQty": 1 },
+      { "id": "temp-iced", "name": "Iced", "delta": 0, "default": false, "maxQty": 1 }
+    ] },
+    { "id": "milk", "name": "Milk", "min": 1, "max": 1, "options": [
+      { "id": "milk-whole", "name": "Whole", "delta": 0, "default": true, "maxQty": 1 },
+      { "id": "milk-2pct", "name": "2%", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "milk-skim", "name": "Skim", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "milk-oat", "name": "Oat", "delta": 70, "default": false, "maxQty": 1 },
+      { "id": "milk-almond", "name": "Almond", "delta": 70, "default": false, "maxQty": 1 },
+      { "id": "milk-soy", "name": "Soy", "delta": 60, "default": false, "maxQty": 1 }
+    ] },
+    { "id": "shots", "name": "Extra shots", "min": 0, "max": 1, "options": [
+      { "id": "shot-extra", "name": "Extra shot", "delta": 90, "default": false, "maxQty": 4 }
+    ] },
+    { "id": "syrups", "name": "Syrups", "min": 0, "max": 3, "options": [
+      { "id": "syrup-vanilla", "name": "Vanilla", "delta": 60, "default": false, "maxQty": 4 },
+      { "id": "syrup-caramel", "name": "Caramel", "delta": 60, "default": false, "maxQty": 4 },
+      { "id": "syrup-hazelnut", "name": "Hazelnut", "delta": 60, "default": false, "maxQty": 4 },
+      { "id": "syrup-sf-vanilla", "name": "SF Vanilla", "delta": 60, "default": false, "maxQty": 4 }
+    ] },
+    { "id": "splash", "name": "Splash", "min": 0, "max": 1, "options": [
+      { "id": "splash-whole", "name": "Whole", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "splash-oat", "name": "Oat", "delta": 50, "default": false, "maxQty": 1 },
+      { "id": "splash-cream", "name": "Half & half", "delta": 0, "default": false, "maxQty": 1 }
+    ] },
+    { "id": "whip", "name": "Whipped cream", "min": 0, "max": 1, "options": [
+      { "id": "whip-yes", "name": "Whip", "delta": 0, "default": true, "maxQty": 1 }
+    ] },
+    { "id": "tea", "name": "Tea", "min": 1, "max": 1, "options": [
+      { "id": "tea-earl-grey", "name": "Earl Grey", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "tea-breakfast", "name": "Breakfast", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "tea-green", "name": "Green", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "tea-chamomile", "name": "Chamomile", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "tea-mint", "name": "Mint", "delta": 0, "default": false, "maxQty": 1 }
+    ] },
+    { "id": "warm", "name": "Warmed", "min": 0, "max": 1, "options": [
+      { "id": "warm-yes", "name": "Warm it", "delta": 0, "default": false, "maxQty": 1 }
+    ] }
+  ]
+}

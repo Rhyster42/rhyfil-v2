@@ -18,7 +18,9 @@ import (
 	"time"
 	_ "time/tzdata" // store time zones must resolve even in a distroless image
 
+	"coffeepos/internal/auth"
 	"coffeepos/internal/db"
+	"coffeepos/internal/seed"
 	"coffeepos/internal/server"
 )
 
@@ -69,13 +71,35 @@ func serve() error {
 		return err
 	}
 
+	if os.Getenv("POS_DEMO") == "1" {
+		seeded, err := seed.Demo(ctx, pool, auth.DefaultPINIterations)
+		if err != nil {
+			return err
+		}
+		if seeded {
+			slog.Info("loaded demo data: Morgan (manager, PIN 1234), Sam (1111), Riley (2222)")
+		}
+	}
+
+	demoCode := os.Getenv("POS_DEMO_ENROLL_CODE")
+	app := server.New(server.Config{
+		Pool:   pool,
+		WebDir: env("POS_WEB_DIR", "web/dist"),
+		Auth:   auth.Options{DemoEnrollCode: demoCode},
+	})
+	if demoCode != "" {
+		slog.Warn("demo enrollment code is on: anyone who knows it can enroll a device", "code", demoCode)
+	}
+	if code, err := app.Auth.EnsureSetupCode(ctx); err != nil {
+		return err
+	} else if code != "" {
+		slog.Warn("first run: open the app and set it up with this code", "code", auth.FormatCode(code))
+	}
+
 	addr := env("POS_ADDR", ":8080")
 	srv := &http.Server{
-		Addr: addr,
-		Handler: server.New(server.Config{
-			Pool:   pool,
-			WebDir: env("POS_WEB_DIR", "web/dist"),
-		}),
+		Addr:              addr,
+		Handler:           app.Handler,
 		ReadHeaderTimeout: 10 * time.Second,
 		ReadTimeout:       30 * time.Second,
 		WriteTimeout:      60 * time.Second,
