@@ -1,0 +1,59 @@
+{
+  "cases": [
+    {
+      "name": "medium latte with default modifiers",
+      "lines": [
+        { "itemId": "latte", "qty": 1, "voided": false, "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }] }
+      ],
+      "expect": { "lines": [{ "unitPrice": 500, "lineTotal": 500 }], "subtotal": 500, "taxable": 500, "tax": 44, "total": 544, "taxShares": [44] }
+    },
+    {
+      "name": "large oat latte with an extra shot",
+      "lines": [
+        { "itemId": "latte", "qty": 1, "voided": false, "mods": [{ "optionId": "size-l", "qty": 1 }, { "optionId": "milk-oat", "qty": 1 }, { "optionId": "shot-extra", "qty": 1 }] }
+      ],
+      "expect": { "lines": [{ "unitPrice": 710, "lineTotal": 710 }], "subtotal": 710, "taxable": 710, "tax": 63, "total": 773, "taxShares": [63] }
+    },
+    {
+      "name": "option quantity multiplies its delta",
+      "lines": [
+        { "itemId": "latte", "qty": 1, "voided": false, "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }, { "optionId": "syrup-vanilla", "qty": 2 }] }
+      ],
+      "expect": { "lines": [{ "unitPrice": 620, "lineTotal": 620 }], "subtotal": 620, "taxable": 620, "tax": 55, "total": 675, "taxShares": [55] }
+    },
+    {
+      "name": "mixed order: quantity, an untaxed item, tax shared by largest remainder",
+      "lines": [
+        { "itemId": "croissant", "qty": 2, "voided": false, "mods": [] },
+        { "itemId": "beans", "qty": 1, "voided": false, "mods": [] },
+        { "itemId": "drip", "qty": 1, "voided": false, "mods": [{ "optionId": "size-m", "qty": 1 }] }
+      ],
+      "expect": {
+        "lines": [{ "unitPrice": 375, "lineTotal": 750 }, { "unitPrice": 1600, "lineTotal": 1600 }, { "unitPrice": 325, "lineTotal": 325 }],
+        "subtotal": 2675, "taxable": 1075, "tax": 95, "total": 2770, "taxShares": [66, 0, 29]
+      }
+    },
+    {
+      "name": "voided lines don't count",
+      "lines": [
+        { "itemId": "latte", "qty": 1, "voided": false, "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }] },
+        { "itemId": "croissant", "qty": 1, "voided": true, "mods": [] }
+      ],
+      "expect": {
+        "lines": [{ "unitPrice": 500, "lineTotal": 500 }, { "unitPrice": 375, "lineTotal": 375 }],
+        "subtotal": 500, "taxable": 500, "tax": 44, "total": 544, "taxShares": [44, 0]
+      }
+    },
+    {
+      "name": "a negative delta floors the unit price at zero",
+      "lines": [
+        { "itemId": "americano", "qty": 1, "voided": false, "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "comp-full", "qty": 1 }] },
+        { "itemId": "croissant", "qty": 1, "voided": false, "mods": [] }
+      ],
+      "expect": {
+        "lines": [{ "unitPrice": 0, "lineTotal": 0 }, { "unitPrice": 375, "lineTotal": 375 }],
+        "subtotal": 375, "taxable": 375, "tax": 33, "total": 408, "taxShares": [0, 33]
+      }
+    }
+  ]
+}

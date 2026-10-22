@@ -1,0 +1,40 @@
+{
+  "taxRatePpm": 88750,
+  "categories": [
+    { "id": "espresso", "name": "Espresso", "color": "#6b3f1f" },
+    { "id": "brewed", "name": "Brewed", "color": "#8a5a2b" },
+    { "id": "bakery", "name": "Bakery", "color": "#b7791f" },
+    { "id": "retail", "name": "Retail", "color": "#4a5d23" }
+  ],
+  "items": [
+    { "id": "latte", "categoryId": "espresso", "name": "Latte", "price": 450, "taxable": true, "groupIds": ["size", "milk", "shots", "syrups"] },
+    { "id": "americano", "categoryId": "espresso", "name": "Americano", "price": 350, "taxable": true, "groupIds": ["size", "shots", "comp"] },
+    { "id": "drip", "categoryId": "brewed", "name": "Drip Coffee", "price": 275, "taxable": true, "groupIds": ["size"] },
+    { "id": "croissant", "categoryId": "bakery", "name": "Croissant", "price": 375, "taxable": true, "groupIds": [] },
+    { "id": "beans", "categoryId": "retail", "name": "Whole Beans 12oz", "price": 1600, "taxable": false, "groupIds": [] }
+  ],
+  "groups": [
+    { "id": "size", "name": "Size", "min": 1, "max": 1, "options": [
+      { "id": "size-s", "name": "Small", "delta": 0, "default": false, "maxQty": 1 },
+      { "id": "size-m", "name": "Medium", "delta": 50, "default": true, "maxQty": 1 },
+      { "id": "size-l", "name": "Large", "delta": 100, "default": false, "maxQty": 1 }
+    ] },
+    { "id": "milk", "name": "Milk", "min": 1, "max": 1, "options": [
+      { "id": "milk-whole", "name": "Whole", "delta": 0, "default": true, "maxQty": 1 },
+      { "id": "milk-oat", "name": "Oat", "delta": 70, "default": false, "maxQty": 1 },
+      { "id": "milk-almond", "name": "Almond", "delta": 70, "default": false, "maxQty": 1 }
+    ] },
+    { "id": "shots", "name": "Extra shots", "min": 0, "max": 1, "options": [
+      { "id": "shot-extra", "name": "Extra shot", "delta": 90, "default": false, "maxQty": 4 }
+    ] },
+    { "id": "syrups", "name": "Syrups", "min": 0, "max": 3, "options": [
+      { "id": "syrup-vanilla", "name": "Vanilla", "delta": 60, "default": false, "maxQty": 4 },
+      { "id": "syrup-caramel", "name": "Caramel", "delta": 60, "default": false, "maxQty": 4 },
+      { "id": "syrup-hazelnut", "name": "Hazelnut", "delta": 60, "default": false, "maxQty": 4 },
+      { "id": "syrup-mocha", "name": "Mocha", "delta": 75, "default": false, "maxQty": 4 }
+    ] },
+    { "id": "comp", "name": "Comp", "min": 0, "max": 1, "options": [
+      { "id": "comp-full", "name": "On the house", "delta": -100000, "default": false, "maxQty": 1 }
+    ] }
+  ]
+}

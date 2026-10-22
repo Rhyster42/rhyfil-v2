@@ -1,0 +1,46 @@
+{
+  "cases": [
+    {
+      "name": "correct PIN",
+      "pin": "1234",
+      "verifier": "pbkdf2-sha256$1000$Y29mZmVlLXBvcy1zYWx0MQ$DUXw9zOXXdUMj7yRQfmzBZ8jQXfh6aTbyBDTkxcOLTY",
+      "valid": true
+    },
+    {
+      "name": "wrong PIN",
+      "pin": "1235",
+      "verifier": "pbkdf2-sha256$1000$Y29mZmVlLXBvcy1zYWx0MQ$DUXw9zOXXdUMj7yRQfmzBZ8jQXfh6aTbyBDTkxcOLTY",
+      "valid": false
+    },
+    {
+      "name": "8 digits with leading zeros",
+      "pin": "00281935",
+      "verifier": "pbkdf2-sha256$2500$YW5vdGhlci0xNmItc2FsdA$Hr5vBvjlNKNLVbsxFg_Rh7uNaezRbHw07AzCdManrMI",
+      "valid": true
+    },
+    {
+      "name": "leading zeros matter",
+      "pin": "281935",
+      "verifier": "pbkdf2-sha256$2500$YW5vdGhlci0xNmItc2FsdA$Hr5vBvjlNKNLVbsxFg_Rh7uNaezRbHw07AzCdManrMI",
+      "valid": false
+    },
+    {
+      "name": "unknown scheme",
+      "pin": "1234",
+      "verifier": "bcrypt$10$abc$def",
+      "valid": false
+    },
+    {
+      "name": "bad iteration count",
+      "pin": "1234",
+      "verifier": "pbkdf2-sha256$lots$Y29mZmVl$Y29mZmVl",
+      "valid": false
+    },
+    {
+      "name": "truncated verifier",
+      "pin": "1234",
+      "verifier": "pbkdf2-sha256$1000$Y29mZmVl",
+      "valid": false
+    }
+  ]
+}

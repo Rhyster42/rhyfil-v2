@@ -1,0 +1,29 @@
+{
+  "tax": [
+    { "amount": 0, "ppm": 88750, "expect": 0, "note": "nothing taxable" },
+    { "amount": 500, "ppm": 88750, "expect": 44, "note": "44.375" },
+    { "amount": 400, "ppm": 88750, "expect": 36, "note": "35.5 exactly: half rounds up" },
+    { "amount": 399, "ppm": 88750, "expect": 35, "note": "35.41125" },
+    { "amount": 710, "ppm": 88750, "expect": 63, "note": "63.0125" },
+    { "amount": 1, "ppm": 88750, "expect": 0, "note": "0.08875" },
+    { "amount": 6, "ppm": 88750, "expect": 1, "note": "0.5325" },
+    { "amount": 10, "ppm": 50000, "expect": 1, "note": "0.5 exactly" },
+    { "amount": 30, "ppm": 50000, "expect": 2, "note": "1.5 exactly" },
+    { "amount": 100, "ppm": 0, "expect": 0, "note": "zero rate" },
+    { "amount": 123456789, "ppm": 88750, "expect": 10956790, "note": "10956790.02375" },
+    { "amount": 1000000, "ppm": 500000, "expect": 500000, "note": "the maximum rate" }
+  ],
+  "allocate": [
+    { "total": 1000, "weights": [1, 1, 1], "expect": [334, 333, 333], "note": "even split, extra cent to the first" },
+    { "total": 100, "weights": [1, 1, 1], "expect": [34, 33, 33] },
+    { "total": 2, "weights": [1, 1, 1], "expect": [1, 1, 0] },
+    { "total": 100, "weights": [1, 2], "expect": [33, 67], "note": "largest remainder wins, not the first" },
+    { "total": 95, "weights": [750, 0, 325], "expect": [66, 0, 29], "note": "tax shares; zero weight gets nothing" },
+    { "total": 5, "weights": [0, 0], "expect": [3, 2], "note": "all-zero weights split evenly" },
+    { "total": 0, "weights": [3, 4], "expect": [0, 0] },
+    { "total": 545, "weights": [1, 1], "expect": [273, 272] },
+    { "total": 7, "weights": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], "expect": [1, 1, 1, 1, 1, 1, 1, 0, 0, 0] },
+    { "total": 1000, "weights": [100], "expect": [1000] },
+    { "total": 9000000000000, "weights": [1, 2], "expect": [3000000000000, 6000000000000], "note": "products beyond 2^53" }
+  ]
+}

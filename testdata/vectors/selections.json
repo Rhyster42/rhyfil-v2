@@ -1,0 +1,16 @@
+{
+  "cases": [
+    { "name": "defaults are complete", "itemId": "latte", "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }], "expect": [] },
+    { "name": "item with no groups", "itemId": "croissant", "mods": [], "expect": [] },
+    { "name": "required size missing", "itemId": "latte", "mods": [{ "optionId": "milk-whole", "qty": 1 }], "expect": ["min:size"] },
+    { "name": "two sizes", "itemId": "latte", "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "size-l", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }], "expect": ["max:size"] },
+    { "name": "more shots than allowed", "itemId": "latte", "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }, { "optionId": "shot-extra", "qty": 5 }], "expect": ["qty:shot-extra"] },
+    { "name": "zero quantity", "itemId": "latte", "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }, { "optionId": "shot-extra", "qty": 0 }], "expect": ["qty:shot-extra"] },
+    { "name": "option from a group the item doesn't have", "itemId": "drip", "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-oat", "qty": 1 }], "expect": ["not-allowed:milk-oat"] },
+    { "name": "unknown option", "itemId": "latte", "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }, { "optionId": "sprinkles", "qty": 1 }], "expect": ["unknown:sprinkles"] },
+    { "name": "same option twice", "itemId": "latte", "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }, { "optionId": "syrup-vanilla", "qty": 1 }, { "optionId": "syrup-vanilla", "qty": 1 }], "expect": ["duplicate:syrup-vanilla"] },
+    { "name": "four syrups when three are allowed", "itemId": "latte", "mods": [{ "optionId": "size-m", "qty": 1 }, { "optionId": "milk-whole", "qty": 1 }, { "optionId": "syrup-vanilla", "qty": 1 }, { "optionId": "syrup-caramel", "qty": 1 }, { "optionId": "syrup-hazelnut", "qty": 1 }, { "optionId": "syrup-mocha", "qty": 1 }], "expect": ["max:syrups"] },
+    { "name": "several problems, sorted", "itemId": "latte", "mods": [{ "optionId": "shot-extra", "qty": 9 }], "expect": ["min:milk", "min:size", "qty:shot-extra"] },
+    { "name": "unknown item", "itemId": "unicorn-frappe", "mods": [], "expect": ["unknown-item:unicorn-frappe"] }
+  ]
+}

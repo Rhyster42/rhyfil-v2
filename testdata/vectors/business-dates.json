@@ -1,0 +1,18 @@
+{
+  "cases": [
+    { "instant": "2026-10-22T14:30:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-10-22", "note": "10:30 EDT" },
+    { "instant": "2026-10-23T05:30:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-10-22", "note": "01:30 EDT belongs to the previous day" },
+    { "instant": "2026-10-23T07:59:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-10-22", "note": "03:59 EDT" },
+    { "instant": "2026-10-23T08:00:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-10-23", "note": "04:00 EDT starts the new day" },
+    { "instant": "2026-11-01T05:30:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-10-31", "note": "01:30 EDT, before DST ends" },
+    { "instant": "2026-11-01T06:30:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-10-31", "note": "01:30 EST, the repeated hour" },
+    { "instant": "2026-11-01T09:00:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-11-01", "note": "04:00 EST" },
+    { "instant": "2026-03-08T07:30:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-03-07", "note": "03:30 EDT, just after DST starts" },
+    { "instant": "2026-03-08T08:00:00Z", "timeZone": "America/New_York", "cutoffMinutes": 240, "expect": "2026-03-08", "note": "04:00 EDT" },
+    { "instant": "2026-10-23T03:59:00Z", "timeZone": "America/New_York", "cutoffMinutes": 0, "expect": "2026-10-22", "note": "no cutoff: 23:59 EDT" },
+    { "instant": "2026-10-22T14:30:00Z", "timeZone": "Australia/Sydney", "cutoffMinutes": 240, "expect": "2026-10-22", "note": "01:30 AEDT on the 23rd" },
+    { "instant": "2026-10-22T20:00:00Z", "timeZone": "Australia/Sydney", "cutoffMinutes": 240, "expect": "2026-10-23", "note": "07:00 AEDT" },
+    { "instant": "2026-12-31T23:59:59Z", "timeZone": "UTC", "cutoffMinutes": 0, "expect": "2026-12-31" },
+    { "instant": "2027-01-01T02:00:00Z", "timeZone": "UTC", "cutoffMinutes": 240, "expect": "2026-12-31", "note": "the cutoff crosses a year" }
+  ]
+}
