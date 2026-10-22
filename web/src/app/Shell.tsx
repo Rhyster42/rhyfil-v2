@@ -3,8 +3,10 @@ import { useEffect } from 'react';
 import { DeviceRemovedBanner } from '../auth/DeviceRemovedBanner';
 import { signOut } from '../auth/session';
 import { db, useMeta } from '../db/db';
+import { RegisterScreen } from '../register/RegisterScreen';
 import { useRoute } from './route';
 import { SyncPill } from './SyncPill';
+import { UpdateBanner } from './UpdateBanner';
 
 /** The signed-in frame: navigation, sync state, who's on the tablet. */
 export function Shell({ staffId }: { staffId: string }) {
@@ -22,6 +24,7 @@ export function Shell({ staffId }: { staffId: string }) {
   return (
     <div className="shell">
       <DeviceRemovedBanner />
+      <UpdateBanner />
       <header className="topbar">
         <span className="brand">{settings?.storeName ?? 'Coffee POS'}</span>
         <nav className="topnav">
@@ -46,7 +49,7 @@ export function Shell({ staffId }: { staffId: string }) {
         </button>
       </header>
       <main className="main">
-        {route.screen === 'register' && <div className="placeholder">The register arrives in milestone 4.</div>}
+        {route.screen === 'register' && <RegisterScreen staffId={staffId} />}
         {route.screen === 'orders' && <div className="placeholder">Order history arrives in milestone 6.</div>}
         {route.screen === 'office' && <div className="placeholder">The back office arrives in milestone 7.</div>}
       </main>

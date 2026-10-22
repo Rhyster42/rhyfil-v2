@@ -37,3 +37,9 @@ history never depends on today's menu.
 - If two managers edit at once, the second save gets a conflict and must
   reload. Fine for one coffee shop.
 - A menu is a few KB, so keeping every version forever is cheap.
+
+**Revised 2026-10-22:** tablets keep every menu version that an open order
+still uses (a `menus` table keyed by version), not just the newest. An order
+stays on the version it started with even if a new menu arrives mid-order, so
+prices don't change while the customer is at the counter, and the server
+re-prices against that same version.

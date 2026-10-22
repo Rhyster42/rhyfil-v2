@@ -3,7 +3,11 @@
 import { api, ApiError, errorMessage, NetworkError } from '../api/client';
 import type { PullResponse } from '../api/types';
 import type { MetaMap, PosDB, SyncStatus } from '../db/db';
+import { finalizeStaleDrafts } from '../db/ledger';
 import { nowIso, setClockOffset } from './clock';
+
+/** Longer than the register's undo window, so the engine never races it. */
+const UNDO_GRACE_MS = 30_000;
 
 export interface EngineOptions {
   /** How often to sync when nothing else triggers it. */
@@ -84,6 +88,8 @@ export class SyncEngine {
   private async once(): Promise<void> {
     const device = await this.db.getMeta('device');
     if (!device) return;
+    // An order left in its undo window (the app was closed, say) still ships.
+    await finalizeStaleDrafts(UNDO_GRACE_MS).catch(() => {});
     try {
       await this.pull(device.token);
       this.failures = 0;

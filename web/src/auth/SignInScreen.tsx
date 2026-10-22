@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useState } from 'react';
 import type { StaffMember } from '../api/types';
 import { SyncPill } from '../app/SyncPill';
+import { UpdateBanner } from '../app/UpdateBanner';
 import { db, useMeta } from '../db/db';
 import { verifyPin } from '../domain/pin';
 import { PinPad } from '../ui/PinPad';
@@ -19,6 +20,7 @@ export function SignInScreen() {
   return (
     <div className="signin-page">
       <DeviceRemovedBanner />
+      <UpdateBanner />
       <header className="signin-header">
         <h1>{settings?.storeName ?? 'Coffee POS'}</h1>
         <SyncPill />
