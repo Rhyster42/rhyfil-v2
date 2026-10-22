@@ -1,0 +1,15 @@
+# Go
+/bin/
+*.test
+coverage.out
+
+# Web
+web/node_modules/
+web/dist/
+web/dev-dist/
+web/test-results/
+web/playwright-report/
+
+# Local
+.env
+.DS_Store

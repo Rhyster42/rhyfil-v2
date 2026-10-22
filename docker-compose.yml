@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: pos
+      POSTGRES_PASSWORD: pos
+      POSTGRES_DB: pos
+    ports:
+      - "${POS_DB_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pos -d pos"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgres://pos:pos@db:5432/pos?sslmode=disable
+      # Demo data on an empty database, and a reusable enrollment code.
+      # Turn both off for anything real.
+      POS_DEMO: "1"
+      POS_DEMO_ENROLL_CODE: DEMO
+    ports:
+      - "${POS_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/app/posd", "health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # HTTPS for real tablets on your network (service workers need it):
+  #   POS_LAN_HOST=192.168.1.20 docker compose --profile lan up
+  caddy:
+    profiles: [lan]
+    image: caddy:2-alpine
+    environment:
+      POS_LAN_HOST: ${POS_LAN_HOST:-localhost}
+    ports:
+      - "8443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [app]
+
+volumes:
+  pgdata:
+  caddy-data:
