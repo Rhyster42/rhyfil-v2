@@ -32,7 +32,7 @@ function CloseBanner({ summary, canUndo, onUndo }: { summary: CloseSummary; canU
   if (summary.status === 'voided') main = 'Order voided';
   else if (summary.change > 0) main = <>Change <strong>{formatMoney(summary.change)}</strong></>;
   else if (summary.tender === 'none') main = 'Done, no charge';
-  else main = `Paid ${summary.tender === 'card' ? 'by card' : summary.tender === 'cash' ? 'in cash' : ''} · ${formatMoney(summary.total)}`;
+  else main = `${summary.tender === 'card' ? 'Paid by card' : summary.tender === 'cash' ? 'Paid in cash' : 'Paid in parts'} · ${formatMoney(summary.total)}`;
   return (
     <div className={`close-banner close-${summary.status}`} role="status">
       <div>

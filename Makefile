@@ -5,7 +5,7 @@ DEV_DB_URL  ?= postgres://pos:pos@localhost:$(DB_PORT)/pos?sslmode=disable
 .PHONY: help db test test-go test-web check dev-server dev-web build up down e2e
 
 help: ## List targets
-	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
+	@grep -E '^[a-z0-9-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-12s %s\n", $$1, $$2}'
 
 db: ## Start Postgres in Docker and wait until it's healthy
 	docker compose up -d --wait db
