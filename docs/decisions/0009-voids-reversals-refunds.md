@@ -33,3 +33,14 @@ That reporting is the real loss-prevention control.
 - **Voiding paid orders as a separate concept from refunds.** Card processors
   distinguish the two, but this POS doesn't talk to the processor. One
   money-back concept is simpler.
+
+**Revised 2026-10-22:**
+- A refund returns money to one payment. Fully refunding an order that was
+  split across payments takes one refund per payment; the refund sheet
+  suggests the payment that covered the chosen items and says how much is
+  left on each.
+- Line refunds return each unit's price plus that unit's share of the order's
+  tax, allocated per unit. Refunding a line in pieces always adds up to
+  exactly what was paid for it.
+- A manager PIN is required even when a manager is the one signed in, so a
+  tablet left signed in as a manager can't be used for refunds.

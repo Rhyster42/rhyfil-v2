@@ -969,3 +969,238 @@ select.input {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ---------- Segmented control, badges, choices ---------- */
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.segmented button {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.segmented button[aria-selected='true'] {
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgb(40 20 0 / 0.12);
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.badge-bad {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.choice-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ---------- Orders ---------- */
+
+.orders {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+}
+.orders-list {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+.orders-toolbar {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.orders-list ul {
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+}
+.order-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  text-align: left;
+}
+.order-row.selected {
+  background: var(--accent-soft);
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+.order-row-number {
+  font-weight: 800;
+}
+.order-row-main {
+  display: grid;
+  min-width: 0;
+}
+.order-row-main > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.order-row-side {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  font-weight: 700;
+}
+.orders-detail {
+  min-height: 0;
+  overflow-y: auto;
+}
+.order-detail {
+  max-width: 720px;
+  padding: 18px 24px 40px;
+}
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.detail-header h2 {
+  margin: 0;
+  font-size: 28px;
+}
+.detail-header p {
+  margin: 4px 0 0;
+}
+.detail-lines,
+.detail-list {
+  display: grid;
+  gap: 2px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+.detail-lines li,
+.detail-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.detail-lines li > span:first-child,
+.detail-list li > span:first-child {
+  display: grid;
+  font-weight: 650;
+}
+.detail-lines small,
+.detail-list small {
+  color: var(--muted);
+  font-weight: 500;
+}
+.voided > span:first-child {
+  color: var(--muted);
+}
+.voided > span:first-child,
+.voided > span:last-child {
+  text-decoration: line-through;
+}
+.void-note {
+  text-decoration: none;
+  display: inline-block;
+}
+.detail-totals {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 16px;
+  max-width: 320px;
+  margin: 12px 0 20px auto;
+}
+.detail-totals dt {
+  color: var(--muted);
+}
+.detail-totals dd {
+  margin: 0;
+  text-align: right;
+}
+.detail-totals .grand {
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 800;
+}
+.order-detail h3 {
+  margin: 20px 0 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+/* ---------- Refunds ---------- */
+
+.refund-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 16px;
+}
+.refund-grid h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--muted);
+}
+.refund-lines {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.refund-lines li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.refund-lines li.done {
+  opacity: 0.5;
+}
+.refund-line-name {
+  display: grid;
+  font-weight: 700;
+}
+.refund-line-name small {
+  color: var(--muted);
+  font-weight: 500;
+}
+.refund-summary {
+  margin: 16px 0 8px;
+  font-size: 20px;
+}
+.refund-done {
+  font-size: 24px;
+}

@@ -81,6 +81,31 @@ func (s *Service) ingest(ctx context.Context, deviceID, id, kind string, raw jso
 			c.menu = doc
 			return o.checks(c), insertOrder(ctx, tx, &o)
 		}, o.referencedStaff())
+	case "refund":
+		var r Refund
+		if err := decodeStrict(raw, &r); err != nil {
+			return Result{}, err
+		}
+		if r.ID != id {
+			return Result{}, reject("document id %s doesn't match the push id", r.ID)
+		}
+		if err := r.validate(deviceID); err != nil {
+			return Result{}, err
+		}
+		r.normalize()
+		return s.store(ctx, kind, r.ID, deviceID, r.BusinessDate, &r, func(tx pgx.Tx, c checkContext) ([]Flag, error) {
+			target, err := loadRefundTarget(ctx, tx, &r)
+			if err != nil {
+				return nil, err
+			}
+			var approverIsManager bool
+			if err := tx.QueryRow(ctx, `
+				SELECT EXISTS (SELECT 1 FROM staff WHERE id = $1 AND active AND role = 'manager')`, r.ApprovedBy,
+			).Scan(&approverIsManager); err != nil {
+				return nil, err
+			}
+			return r.checks(target, approverIsManager, c), insertRefund(ctx, tx, &r)
+		}, r.referencedStaff())
 	default:
 		return Result{}, reject("unknown document kind %q", kind)
 	}

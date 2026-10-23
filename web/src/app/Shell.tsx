@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { DeviceRemovedBanner } from '../auth/DeviceRemovedBanner';
 import { signOut } from '../auth/session';
 import { db, useMeta } from '../db/db';
+import { OrdersScreen } from '../orders/OrdersScreen';
 import { RegisterScreen } from '../register/RegisterScreen';
 import { useRoute } from './route';
 import { SyncPill } from './SyncPill';
@@ -50,7 +51,7 @@ export function Shell({ staffId }: { staffId: string }) {
       </header>
       <main className="main">
         {route.screen === 'register' && <RegisterScreen staffId={staffId} />}
-        {route.screen === 'orders' && <div className="placeholder">Order history arrives in milestone 6.</div>}
+        {route.screen === 'orders' && <OrdersScreen staffId={staffId} orderId={route.orderId} navigate={navigate} />}
         {route.screen === 'office' && <div className="placeholder">The back office arrives in milestone 7.</div>}
       </main>
     </div>

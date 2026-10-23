@@ -21,10 +21,12 @@ import (
 	"coffeepos/internal/syncapi"
 )
 
-// The ids web/src/domain/contract.test.ts used for testdata/documents/order.json.
+// The ids web/src/domain/contract.test.ts and refund.test.ts used for
+// testdata/documents.
 const (
 	contractDevice = "0190f0d6-0000-7000-8000-00000000d001"
 	contractSam    = "0190f0d6-0000-7000-8000-00000000c001"
+	contractMorgan = "0190f0d6-0000-7000-8000-00000000c002"
 )
 
 // contractAPI is a system with the vector menu as version 1 and the
@@ -49,8 +51,8 @@ func contractAPI(t *testing.T) (*api, *client) {
 	verifier, _ := auth.HashPIN("1111", 1000)
 	token, hash := auth.NewToken()
 	if _, err := a.pool.Exec(ctx, `
-		INSERT INTO staff (id, name, role, pin_verifier) VALUES ($1, 'Sam', 'barista', $2);
-		`, contractSam, verifier); err != nil {
+		INSERT INTO staff (id, name, role, pin_verifier) VALUES ($1, 'Sam', 'barista', $3), ($2, 'Morgan', 'manager', $3)`,
+		contractSam, contractMorgan, verifier); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := a.pool.Exec(ctx, `INSERT INTO devices (id, name, code, token_hash) VALUES ($1, 'Front', 'A', $2)`, contractDevice, hash); err != nil {
@@ -205,11 +207,15 @@ func TestPushRejectsWhatItCannotStore(t *testing.T) {
 			o.Payments[1].Change++
 			return orderMutation(o)
 		}(),
-		"zero quantity":       func() mutation { o := fresh(base); o.Lines[1].Qty = 0; return orderMutation(o) }(),
-		"covers a stray line": func() mutation { o := fresh(base); o.Payments[0].CoversLineIDs = []string{other}; return orderMutation(o) }(),
-		"id mismatch":         func() mutation { o := fresh(base); m := orderMutation(o); m.ID = other; return m }(),
-		"unknown kind":        {ID: other, Kind: "tip", Doc: map[string]any{}},
-		"line id reused":      func() mutation { o := fresh(base); o.Lines[0].ID = base.Lines[0].ID; return orderMutation(o) }(),
+		"zero quantity": func() mutation { o := fresh(base); o.Lines[1].Qty = 0; return orderMutation(o) }(),
+		"covers a stray line": func() mutation {
+			o := fresh(base)
+			o.Payments[0].CoversLineIDs = []string{other}
+			return orderMutation(o)
+		}(),
+		"id mismatch":    func() mutation { o := fresh(base); m := orderMutation(o); m.ID = other; return m }(),
+		"unknown kind":   {ID: other, Kind: "tip", Doc: map[string]any{}},
+		"line id reused": func() mutation { o := fresh(base); o.Lines[0].ID = base.Lines[0].ID; return orderMutation(o) }(),
 	}
 	// The golden order goes first, so "line id reused" collides with it.
 	if res := tablet.push(orderMutation(base))[0]; res.Status != ledger.Applied {
@@ -248,7 +254,12 @@ func TestPushStoresAndFlagsRuleBreaks(t *testing.T) {
 			o.Payments[0].Amount -= 109
 			o.Payments[0].Tendered -= 109
 		}, []string{ledger.FlagMenuMismatch}},
-		{"totals that don't add up", func(o *ledger.Order) { o.Subtotal += 50; o.Total += 50; o.Payments[1].Amount += 50; o.Payments[1].Change -= 50 },
+		{"totals that don't add up", func(o *ledger.Order) {
+			o.Subtotal += 50
+			o.Total += 50
+			o.Payments[1].Amount += 50
+			o.Payments[1].Change -= 50
+		},
 			[]string{ledger.FlagTotalMismatch}},
 		{"paid less than the total", func(o *ledger.Order) { o.Payments[1].Amount -= 10; o.Payments[1].Change += 10 },
 			[]string{ledger.FlagPaymentMismatch}},

@@ -1,6 +1,7 @@
 // Moving orders from "open on this tablet" to "in the ledger and on their
 // way to the server".
 import { useLiveQuery } from 'dexie-react-hooks';
+import type { RefundDoc } from '../domain/documents';
 import { indexMenu, type MenuIndex } from '../domain/menu';
 import { toOrderDoc, type Draft } from '../domain/order';
 import { nowIso } from '../sync/clock';
@@ -70,4 +71,12 @@ export async function finalizeStaleDrafts(graceMs = 0): Promise<void> {
   const cutoff = Date.now() - graceMs;
   const closed = await db.drafts.filter((d) => d.closedAt !== null && Date.parse(d.closedAt) <= cutoff).toArray();
   for (const d of closed) await finalizeOrder(d);
+}
+
+/** Records a refund in the local ledger and the outbox, in one transaction. */
+export async function saveRefund(doc: RefundDoc): Promise<void> {
+  await db.transaction('rw', [db.refunds, db.outbox], async () => {
+    await db.refunds.add({ ...doc, seq: null });
+    await db.outbox.add({ id: doc.id, kind: 'refund', doc, createdAt: nowIso(), attempts: 0, lastError: null });
+  });
 }
