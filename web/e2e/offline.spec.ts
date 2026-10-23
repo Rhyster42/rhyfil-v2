@@ -28,13 +28,16 @@ test('sell and refund through an outage, then sync cleanly', async ({ page, cont
   await page.getByRole('tab', { name: 'Bakery' }).click();
   await tap(page, /^Croissant/);
   await tap(page, 'One more');
+  // Other runs' orders are on the server too: remember this one's number.
+  const number = (await page.getByRole('heading', { name: /^Order / }).textContent())!.replace('Order ', '');
   await tap(page, /^Exact/);
   await waitForUndoWindow(page);
   await expect(page.locator('.pill')).toHaveText('Offline · 2 waiting');
 
   // Still offline: refund one croissant with the manager's PIN.
   await page.getByRole('button', { name: 'Orders' }).click();
-  await page.getByRole('button', { name: /Croissant ×2/ }).click();
+  await page.getByLabel('Search orders').fill(number);
+  await page.getByRole('button', { name: new RegExp(`^${number}`) }).click();
   await tap(page, 'Refund…');
   await tap(page, 'One more Croissant');
   await tap(page, 'Made wrong');
