@@ -938,3 +938,34 @@ select.input {
     gap: 4px;
   }
 }
+
+/* ---------- Facts, lists ---------- */
+
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0 0 16px;
+}
+.facts dt {
+  color: var(--muted);
+  font-weight: 600;
+}
+.facts dd {
+  margin: 0;
+  font-weight: 650;
+}
+.rejected {
+  margin-top: 20px;
+}
+.rejected h3 {
+  margin: 0 0 6px;
+}
+.rejected ul {
+  padding-left: 20px;
+}
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -30,3 +30,11 @@ also runs under the lock, so idempotency has no race.
 
 - A test pushes from many goroutines at once while a reader pulls, and asserts
   the reader sees every document exactly once.
+- Checked once by deleting the lock: the test then failed in two of three
+  runs, each time with an order the reader never saw.
+
+**Revised 2026-10-22:** tablets only receive the last two business days, so
+a pull filters by business date as well as seq. When a page isn't full, the
+cursor jumps to the newest seq, read in the same `REPEATABLE READ` snapshot
+as the page. That way it never re-scans old rows and never jumps past a row
+it hasn't seen.

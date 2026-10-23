@@ -1,0 +1,134 @@
+{
+  "v": 1,
+  "id": "0190f0d6-0000-7000-8000-00000000a001",
+  "deviceId": "0190f0d6-0000-7000-8000-00000000d001",
+  "staffId": "0190f0d6-0000-7000-8000-00000000c001",
+  "number": "A-007",
+  "businessDate": "2026-10-22",
+  "status": "paid",
+  "menuVersion": 1,
+  "createdAt": "2026-10-22T14:30:00.000Z",
+  "closedAt": "2026-10-22T14:33:00.000Z",
+  "lines": [
+    {
+      "id": "0190f0d6-0000-7000-8000-00000000b001",
+      "itemId": "latte",
+      "itemName": "Latte",
+      "category": "Espresso",
+      "qty": 1,
+      "unitPrice": 710,
+      "lineTotal": 710,
+      "taxable": true,
+      "mods": [
+        {
+          "optionId": "size-l",
+          "groupId": "size",
+          "groupName": "Size",
+          "optionName": "Large",
+          "qty": 1,
+          "delta": 100
+        },
+        {
+          "optionId": "milk-oat",
+          "groupId": "milk",
+          "groupName": "Milk",
+          "optionName": "Oat",
+          "qty": 1,
+          "delta": 70
+        },
+        {
+          "optionId": "shot-extra",
+          "groupId": "shots",
+          "groupName": "Extra shots",
+          "optionName": "Extra shot",
+          "qty": 1,
+          "delta": 90
+        }
+      ],
+      "addedAt": "2026-10-22T14:30:00.000Z",
+      "void": null
+    },
+    {
+      "id": "0190f0d6-0000-7000-8000-00000000b002",
+      "itemId": "croissant",
+      "itemName": "Croissant",
+      "category": "Bakery",
+      "qty": 2,
+      "unitPrice": 375,
+      "lineTotal": 750,
+      "taxable": true,
+      "mods": [],
+      "addedAt": "2026-10-22T14:30:00.000Z",
+      "void": null
+    },
+    {
+      "id": "0190f0d6-0000-7000-8000-00000000b003",
+      "itemId": "beans",
+      "itemName": "Whole Beans 12oz",
+      "category": "Retail",
+      "qty": 1,
+      "unitPrice": 1600,
+      "lineTotal": 1600,
+      "taxable": false,
+      "mods": [],
+      "addedAt": "2026-10-22T14:31:00.000Z",
+      "void": null
+    },
+    {
+      "id": "0190f0d6-0000-7000-8000-00000000b004",
+      "itemId": "drip",
+      "itemName": "Drip Coffee",
+      "category": "Brewed",
+      "qty": 1,
+      "unitPrice": 325,
+      "lineTotal": 325,
+      "taxable": true,
+      "mods": [
+        {
+          "optionId": "size-m",
+          "groupId": "size",
+          "groupName": "Size",
+          "optionName": "Medium",
+          "qty": 1,
+          "delta": 50
+        }
+      ],
+      "addedAt": "2026-10-22T14:31:00.000Z",
+      "void": {
+        "at": "2026-10-22T14:31:00.000Z",
+        "by": "0190f0d6-0000-7000-8000-00000000c001",
+        "reason": "Rang in error"
+      }
+    }
+  ],
+  "subtotal": 3060,
+  "tax": 130,
+  "total": 3190,
+  "payments": [
+    {
+      "id": "0190f0d6-0000-7000-8000-00000000b005",
+      "tender": "card",
+      "amount": 773,
+      "tendered": 773,
+      "change": 0,
+      "coversLineIds": [
+        "0190f0d6-0000-7000-8000-00000000b001"
+      ],
+      "staffId": "0190f0d6-0000-7000-8000-00000000c001",
+      "createdAt": "2026-10-22T14:32:00.000Z",
+      "reversal": null
+    },
+    {
+      "id": "0190f0d6-0000-7000-8000-00000000b006",
+      "tender": "cash",
+      "amount": 2417,
+      "tendered": 5000,
+      "change": 2583,
+      "coversLineIds": [],
+      "staffId": "0190f0d6-0000-7000-8000-00000000c001",
+      "createdAt": "2026-10-22T14:33:00.000Z",
+      "reversal": null
+    }
+  ],
+  "void": null
+}

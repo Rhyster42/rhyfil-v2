@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import type { PullResponse } from '../api/types';
+import type { PullResponse, PushRequest } from '../api/types';
 import { db } from '../db/db';
+import type { OrderDoc } from '../domain/documents';
 import { device, fakeServer, offline, testSettings, vectorMenu } from '../test/fixtures';
 import { now } from './clock';
 import { SyncEngine } from './engine';
@@ -126,5 +127,120 @@ describe('failures', () => {
     const { requests } = fakeServer({});
     await new SyncEngine(db).syncNow();
     expect(requests).toHaveLength(0);
+  });
+});
+
+function orderDoc(id: string, businessDate = '2026-10-22'): OrderDoc {
+  return { v: 1, id, number: `A-${id}`, businessDate, status: 'paid', lines: [], payments: [] } as unknown as OrderDoc;
+}
+
+async function queue(...ids: string[]) {
+  for (const id of ids) {
+    const doc = orderDoc(id);
+    await db.orders.put({ ...doc, seq: null });
+    await db.outbox.add({ id, kind: 'order', doc, createdAt: new Date().toISOString(), attempts: 0, lastError: null });
+  }
+}
+
+describe('push', () => {
+  test('sends the outbox oldest first, before pulling, and settles every result', async () => {
+    const engine = await enrolled();
+    await queue('o1', 'o2', 'o3');
+    const { requests } = fakeServer({
+      'POST /api/sync/push': () => ({
+        body: {
+          results: [
+            { id: 'o1', status: 'applied', seq: 7 },
+            { id: 'o2', status: 'duplicate', seq: 5 },
+            { id: 'o3', status: 'rejected', error: 'malformed document' },
+          ],
+        },
+      }),
+      'GET /api/sync/pull': () => ({ body: pullResponse() }),
+    });
+    await engine.syncNow();
+
+    expect(requests.map((r) => `${r.method} ${r.path}`)).toEqual(['POST /api/sync/push', 'GET /api/sync/pull']);
+    expect((requests[0]!.body as PushRequest).mutations.map((m) => m.id)).toEqual(['o1', 'o2', 'o3']);
+    expect(await db.outbox.count()).toBe(0);
+    expect((await db.orders.get('o1'))?.seq).toBe(7);
+    expect((await db.orders.get('o2'))?.seq).toBe(5);
+    expect(await db.deadLetters.get('o3')).toMatchObject({ kind: 'order', error: 'malformed document' });
+    // The local copy stays: it's what happened at the counter.
+    expect((await db.orders.get('o3'))?.seq).toBeNull();
+    expect((await db.getMeta('syncStatus'))?.state).toBe('idle');
+  });
+
+  test('a retry keeps that document and everything after it, in order', async () => {
+    const engine = await enrolled();
+    await queue('o1', 'o2', 'o3');
+    const { requests } = fakeServer({
+      'POST /api/sync/push': () => ({
+        body: {
+          results: [
+            { id: 'o1', status: 'applied', seq: 1 },
+            { id: 'o2', status: 'retry', error: 'database busy' },
+            { id: 'o3', status: 'retry', error: 'waiting for an earlier document' },
+          ],
+        },
+      }),
+    });
+    await engine.syncNow();
+    expect((await db.outbox.orderBy('seq').toArray()).map((o) => [o.id, o.attempts])).toEqual([
+      ['o2', 1],
+      ['o3', 1],
+    ]);
+    expect(await db.getMeta('syncStatus')).toMatchObject({ state: 'error', lastError: 'database busy' });
+    expect(requests).toHaveLength(1); // no pull after a failed push
+  });
+
+  test('an offline push leaves the outbox untouched', async () => {
+    const engine = await enrolled();
+    await queue('o1');
+    fakeServer({ 'POST /api/sync/push': offline });
+    await engine.syncNow();
+    expect(await db.outbox.count()).toBe(1);
+    expect((await db.getMeta('syncStatus'))?.state).toBe('offline');
+  });
+
+  test('large outboxes go in batches', async () => {
+    const engine = await enrolled();
+    await queue(...Array.from({ length: 120 }, (_, i) => `o${i}`));
+    const { requests } = fakeServer({
+      'POST /api/sync/push': ({ body }) => ({
+        body: { results: (body as PushRequest).mutations.map((m, i) => ({ id: m.id, status: 'applied', seq: i + 1 })) },
+      }),
+      'GET /api/sync/pull': () => ({ body: pullResponse() }),
+    });
+    await engine.syncNow();
+    expect(requests.filter((r) => r.method === 'POST').map((r) => (r.body as PushRequest).mutations.length)).toEqual([50, 50, 20]);
+    expect(await db.outbox.count()).toBe(0);
+  });
+});
+
+describe('ledger', () => {
+  test("other tablets' documents land in the local ledger", async () => {
+    const engine = await enrolled();
+    fakeServer({
+      'GET /api/sync/pull': () => ({
+        body: pullResponse({ ledger: { entries: [{ seq: 11, kind: 'order', doc: orderDoc('b1') }], cursor: 11, hasMore: false } }),
+      }),
+    });
+    await engine.syncNow();
+    expect(await db.orders.get('b1')).toMatchObject({ number: 'A-b1', seq: 11 });
+    expect(await db.getMeta('cursor')).toBe(11);
+  });
+
+  test('old synced documents are dropped; unsynced ones never are', async () => {
+    const engine = await enrolled();
+    await db.setMeta('settings', testSettings);
+    await db.orders.bulkPut([
+      { ...orderDoc('old-synced', '2020-01-01'), seq: 1 },
+      { ...orderDoc('old-unsynced', '2020-01-01'), seq: null },
+      { ...orderDoc('recent', new Date().toISOString().slice(0, 10)), seq: 2 },
+    ]);
+    fakeServer({ 'GET /api/sync/pull': () => ({ body: pullResponse() }) });
+    await engine.syncNow();
+    expect((await db.orders.toCollection().primaryKeys()).sort()).toEqual(['old-unsynced', 'recent']);
   });
 });

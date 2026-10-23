@@ -1,10 +1,11 @@
 // The only register code that talks to the network (docs/decisions/0001):
 // it pushes the outbox and pulls the menu, staff, settings and ledger.
 import { api, ApiError, errorMessage, NetworkError } from '../api/client';
-import type { PullResponse } from '../api/types';
+import type { PullResponse, PushRequest, PushResult } from '../api/types';
 import type { MetaMap, PosDB, SyncStatus } from '../db/db';
 import { finalizeStaleDrafts } from '../db/ledger';
-import { nowIso, setClockOffset } from './clock';
+import { addDays, businessDate } from '../domain/businessDate';
+import { now, nowIso, setClockOffset } from './clock';
 
 /** Longer than the register's undo window, so the engine never races it. */
 const UNDO_GRACE_MS = 30_000;
@@ -17,6 +18,12 @@ export interface EngineOptions {
 }
 
 const MAX_BACKOFF_MS = 30_000;
+const PUSH_BATCH = 50;
+/** Synced documents older than this many business days are dropped from the tablet. */
+const KEEP_DAYS = 3;
+
+/** The server stored some documents but asked for the rest again later. */
+class RetryLater extends Error {}
 
 export class SyncEngine {
   private running: Promise<void> | null = null;
@@ -91,6 +98,7 @@ export class SyncEngine {
     // An order left in its undo window (the app was closed, say) still ships.
     await finalizeStaleDrafts(UNDO_GRACE_MS).catch(() => {});
     try {
+      await this.push(device.token);
       await this.pull(device.token);
       this.failures = 0;
       await this.setStatus({ state: 'idle', lastSyncAt: nowIso(), lastError: null });
@@ -109,6 +117,40 @@ export class SyncEngine {
   private async setStatus(patch: Partial<SyncStatus>): Promise<void> {
     const prev = (await this.db.getMeta('syncStatus')) ?? { state: 'idle', lastSyncAt: null, lastError: null };
     await this.db.setMeta('syncStatus', { ...prev, ...patch });
+  }
+
+  /**
+   * Sends the outbox, oldest first. Stored documents leave the outbox (and
+   * get their server sequence number); rejected ones move to the dead-letter
+   * list; anything the server asks to retry stays, in order.
+   */
+  private async push(token: string): Promise<void> {
+    const { db } = this;
+    for (let round = 0; round < 20; round++) {
+      const batch = await db.outbox.orderBy('seq').limit(PUSH_BATCH).toArray();
+      if (batch.length === 0) return;
+      const body: PushRequest = { mutations: batch.map((m) => ({ id: m.id, kind: m.kind, doc: m.doc })) };
+      const res = await api<{ results: PushResult[] }>('POST', '/sync/push', { auth: { token }, body });
+      const results = new Map(res.results.map((r) => [r.id, r]));
+      let retry: string | null = null;
+      await db.transaction('rw', [db.outbox, db.deadLetters, db.orders, db.refunds], async () => {
+        for (const item of batch) {
+          const r = results.get(item.id);
+          if (!r || r.status === 'retry') {
+            retry ??= r?.error ?? 'the server skipped this document';
+            await db.outbox.update(item.seq!, { attempts: item.attempts + 1, lastError: retry });
+            continue;
+          }
+          await db.outbox.delete(item.seq!);
+          if (r.status === 'rejected') {
+            await db.deadLetters.put({ id: item.id, kind: item.kind, doc: item.doc, error: r.error ?? 'rejected', rejectedAt: nowIso() });
+          } else {
+            await (item.kind === 'order' ? db.orders : db.refunds).update(item.id, { seq: r.seq ?? null });
+          }
+        }
+      });
+      if (retry) throw new RetryLater(retry);
+    }
   }
 
   private async pull(token: string): Promise<void> {
@@ -142,7 +184,7 @@ export class SyncEngine {
 
   private async applyPull(res: PullResponse, offset: number): Promise<void> {
     const { db } = this;
-    await db.transaction('rw', [db.meta, db.menus, db.staff, db.drafts], async () => {
+    await db.transaction('rw', [db.meta, db.menus, db.staff, db.drafts, db.orders, db.refunds], async () => {
       const meta: Partial<MetaMap> = { clockOffsetMs: offset, cursor: res.ledger.cursor };
       if (res.menu) {
         await db.menus.put(res.menu);
@@ -161,6 +203,20 @@ export class SyncEngine {
       }
       if (res.settings) meta.settings = res.settings;
       await db.meta.bulkPut(Object.entries(meta).map(([key, value]) => ({ key: key as keyof MetaMap, value })));
+
+      // Every device's documents, as the server stored them.
+      for (const e of res.ledger.entries) {
+        if (e.kind === 'order') await db.orders.put({ ...e.doc, seq: e.seq });
+        else await db.refunds.put({ ...e.doc, seq: e.seq });
+      }
+
+      // Forget synced documents from long ago; unsynced ones always stay.
+      const settings = res.settings ?? (await db.getMeta('settings'));
+      if (settings) {
+        const cutoff = addDays(businessDate(now(), settings.timezone, settings.dayCutoffMinutes), -KEEP_DAYS);
+        await db.orders.where('businessDate').below(cutoff).filter((o) => o.seq !== null).delete();
+        await db.refunds.where('businessDate').below(cutoff).filter((r) => r.seq !== null).delete();
+      }
     });
   }
 }

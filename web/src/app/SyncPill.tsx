@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useState } from 'react';
 import { db, useMeta } from '../db/db';
-import { engine } from './services';
+import { SyncSheet } from './SyncSheet';
 
 /** Always-visible sync state: are we online, and is anything waiting? */
 export function SyncPill() {
@@ -8,6 +9,7 @@ export function SyncPill() {
   const pending = useLiveQuery(() => db.outbox.count(), []) ?? 0;
   const problems = useLiveQuery(() => db.deadLetters.count(), []) ?? 0;
   const state = status?.state ?? 'idle';
+  const [open, setOpen] = useState(false);
 
   let label: string;
   let tone: 'ok' | 'warn' | 'bad';
@@ -40,9 +42,12 @@ export function SyncPill() {
     .join(' · ');
 
   return (
-    <button type="button" className={`pill pill-${tone}`} title={title} onClick={() => void engine.syncNow()}>
-      <span className="pill-dot" aria-hidden="true" />
-      {label}
-    </button>
+    <>
+      <button type="button" className={`pill pill-${tone}`} title={title} onClick={() => setOpen(true)}>
+        <span className="pill-dot" aria-hidden="true" />
+        {label}
+      </button>
+      {open && <SyncSheet onClose={() => setOpen(false)} />}
+    </>
   );
 }

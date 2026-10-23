@@ -10,6 +10,7 @@ import (
 
 	"coffeepos/internal/auth"
 	"coffeepos/internal/httpx"
+	"coffeepos/internal/ledger"
 	"coffeepos/internal/menu"
 	"coffeepos/internal/settings"
 	"coffeepos/internal/syncapi"
@@ -41,7 +42,8 @@ func New(cfg Config) *Server {
 	a := auth.New(cfg.Pool, cfg.Auth)
 	menus := menu.NewStore(cfg.Pool)
 	settingsAPI := settings.Handlers{Pool: cfg.Pool}
-	sync := &syncapi.Service{Pool: cfg.Pool, Auth: a, Menus: menus, Now: cfg.Now}
+	led := &ledger.Service{Pool: cfg.Pool, Menus: menus, Now: cfg.Now}
+	sync := &syncapi.Service{Pool: cfg.Pool, Auth: a, Menus: menus, Ledger: led, Now: cfg.Now}
 
 	type handler = httpx.HandlerFunc
 	device := a.RequireDevice   // an enrolled tablet
@@ -63,6 +65,7 @@ func New(cfg Config) *Server {
 
 	// Tablets.
 	mux.Handle("GET /api/sync/pull", device(handler(sync.HandlePull)))
+	mux.Handle("POST /api/sync/push", device(handler(sync.HandlePush)))
 	mux.Handle("POST /api/sessions", device(handler(a.HandleCreateSession)))
 	mux.Handle("DELETE /api/sessions", device(handler(a.HandleDeleteSession)))
 

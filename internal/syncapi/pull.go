@@ -10,18 +10,28 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"coffeepos/internal/auth"
+	"coffeepos/internal/bizdate"
 	"coffeepos/internal/httpx"
+	"coffeepos/internal/ledger"
 	"coffeepos/internal/menu"
 	"coffeepos/internal/settings"
 )
 
 // Service serves /api/sync.
 type Service struct {
-	Pool  *pgxpool.Pool
-	Auth  *auth.Service
-	Menus *menu.Store
-	Now   func() time.Time
+	Pool   *pgxpool.Pool
+	Auth   *auth.Service
+	Menus  *menu.Store
+	Ledger *ledger.Service
+	Now    func() time.Time
 }
+
+// ledgerDays is how many past business days tablets keep (for history and
+// offline refunds); older documents aren't sent to a tablet catching up.
+const ledgerDays = 2
+
+// pageSize is how many ledger entries one pull returns.
+const pageSize = 200
 
 // StaffList is the staff a tablet needs for sign-in and approvals.
 type StaffList struct {
@@ -39,19 +49,8 @@ type PullResponse struct {
 	Ledger     LedgerPage         `json:"ledger"`
 }
 
-// LedgerPage is a slice of other devices' (and this device's) documents.
-type LedgerPage struct {
-	Entries []LedgerEntry `json:"entries"`
-	Cursor  int64         `json:"cursor"`
-	HasMore bool          `json:"hasMore"`
-}
-
-// LedgerEntry is one document as the server stored it.
-type LedgerEntry struct {
-	Seq  int64  `json:"seq"`
-	Kind string `json:"kind"`
-	Doc  any    `json:"doc"`
-}
+// LedgerPage is documents from every device (this one included).
+type LedgerPage = ledger.Page
 
 func intParam(r *http.Request, name string) (int64, error) {
 	s := r.URL.Query().Get(name)
@@ -81,7 +80,7 @@ func (s *Service) HandlePull(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	resp := PullResponse{ServerTime: s.Now().UTC(), Ledger: LedgerPage{Entries: []LedgerEntry{}, Cursor: params["cursor"]}}
+	resp := PullResponse{ServerTime: s.Now().UTC()}
 
 	latest, err := s.Menus.LatestVersion(ctx)
 	if err != nil {
@@ -113,6 +112,12 @@ func (s *Service) HandlePull(w http.ResponseWriter, r *http.Request) error {
 	}
 	if st.Version > params["settings"] {
 		resp.Settings = &st
+	}
+
+	today, _ := bizdate.Parse(bizdate.Of(s.Now(), st.Location(), st.DayCutoffMinutes))
+	since := today.AddDate(0, 0, -ledgerDays).Format(bizdate.Layout)
+	if resp.Ledger, err = s.Ledger.After(ctx, params["cursor"], since, pageSize); err != nil {
+		return err
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, resp)
