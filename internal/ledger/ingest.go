@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"coffeepos/internal/db"
 	"coffeepos/internal/menu"
 	"coffeepos/internal/settings"
 )
@@ -38,10 +39,6 @@ type Result struct {
 	Error  string   `json:"error,omitempty"`
 	Flags  []string `json:"flags,omitempty"`
 }
-
-// ledgerLock serializes ledger writes so seq follows commit order and the
-// pull cursor can't skip a row (docs/decisions/0012).
-const ledgerLock = 7_150_004
 
 // Ingest stores one document pushed by a device.
 func (s *Service) Ingest(ctx context.Context, deviceID, id, kind string, raw json.RawMessage) Result {
@@ -122,7 +119,7 @@ func (s *Service) store(ctx context.Context, kind, id, deviceID, businessDate st
 	received := s.Now()
 	var res Result
 	err = pgx.BeginFunc(ctx, s.Pool, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", ledgerLock); err != nil {
+		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", db.LockLedger); err != nil {
 			return err
 		}
 		var seq int64

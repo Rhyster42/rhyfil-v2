@@ -3,16 +3,22 @@ import { useEffect, useRef, useState } from 'react';
 interface PinPadProps {
   title: string;
   hint?: string;
-  /** Checks a PIN. Tried quietly once 4+ digits are in, so short PINs need no OK tap. */
-  check: (pin: string) => Promise<boolean>;
+  /**
+   * Checks a PIN: true accepts, false is a wrong PIN, a string is any other
+   * problem to show. Unless auto is false, it's tried quietly once 4+ digits
+   * are in, so short PINs need no OK tap.
+   */
+  check: (pin: string) => Promise<boolean | string>;
   onAccept: (pin: string) => void;
   onCancel?: () => void;
+  /** Off when each check costs something (a server round trip that counts failures). */
+  auto?: boolean;
 }
 
 const MAX_LENGTH = 8;
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-export function PinPad({ title, hint, check, onAccept, onCancel }: PinPadProps) {
+export function PinPad({ title, hint, check, onAccept, onCancel, auto = true }: PinPadProps) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -23,14 +29,14 @@ export function PinPad({ title, hint, check, onAccept, onCancel }: PinPadProps) 
   async function tryPin(value: string, explicit: boolean) {
     const n = ++attempt.current;
     if (explicit) setChecking(true);
-    const ok = await check(value);
+    const result = await check(value);
     if (n !== attempt.current || done.current) return;
     setChecking(false);
-    if (ok) {
+    if (result === true) {
       done.current = true;
       onAccept(value);
     } else if (explicit) {
-      setError('Wrong PIN');
+      setError(result === false ? 'Wrong PIN' : result);
       setPin('');
     }
   }
@@ -40,7 +46,7 @@ export function PinPad({ title, hint, check, onAccept, onCancel }: PinPadProps) 
     const next = pin + digit;
     setError(null);
     setPin(next);
-    if (next.length >= 4) void tryPin(next, false);
+    if (auto && next.length >= 4) void tryPin(next, false);
   }
 
   function back() {

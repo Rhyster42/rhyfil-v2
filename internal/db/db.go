@@ -33,10 +33,6 @@ func Open(ctx context.Context, url string) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
-// migrationLock is the advisory lock key held while migrating, so two servers
-// starting at once don't both apply the same file.
-const migrationLock = 7_150_001
-
 // Migrate applies, in name order, every embedded migration that isn't yet
 // recorded in schema_migrations. Each file runs in its own transaction.
 func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
@@ -46,10 +42,10 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool) error {
 	}
 	defer conn.Release()
 
-	if _, err := conn.Exec(ctx, "SELECT pg_advisory_lock($1)", migrationLock); err != nil {
+	if _, err := conn.Exec(ctx, "SELECT pg_advisory_lock($1)", LockMigrations); err != nil {
 		return fmt.Errorf("lock migrations: %w", err)
 	}
-	defer conn.Exec(context.WithoutCancel(ctx), "SELECT pg_advisory_unlock($1)", migrationLock) //nolint:errcheck
+	defer conn.Exec(context.WithoutCancel(ctx), "SELECT pg_advisory_unlock($1)", LockMigrations) //nolint:errcheck
 
 	if _, err := conn.Exec(ctx, `CREATE TABLE IF NOT EXISTS schema_migrations (
 		name       text PRIMARY KEY,

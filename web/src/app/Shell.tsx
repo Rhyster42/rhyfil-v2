@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { DeviceRemovedBanner } from '../auth/DeviceRemovedBanner';
 import { signOut } from '../auth/session';
 import { db, useMeta } from '../db/db';
+import { OfficeScreen } from '../office/OfficeScreen';
 import { OrdersScreen } from '../orders/OrdersScreen';
 import { RegisterScreen } from '../register/RegisterScreen';
 import { useRoute } from './route';
@@ -52,7 +53,7 @@ export function Shell({ staffId }: { staffId: string }) {
       <main className="main">
         {route.screen === 'register' && <RegisterScreen staffId={staffId} />}
         {route.screen === 'orders' && <OrdersScreen staffId={staffId} orderId={route.orderId} navigate={navigate} />}
-        {route.screen === 'office' && <div className="placeholder">The back office arrives in milestone 7.</div>}
+        {route.screen === 'office' && isManager && <OfficeScreen staffId={staffId} tab={route.tab} navigate={navigate} />}
       </main>
     </div>
   );

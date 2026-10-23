@@ -12,6 +12,7 @@ import (
 	"coffeepos/internal/httpx"
 	"coffeepos/internal/ledger"
 	"coffeepos/internal/menu"
+	"coffeepos/internal/reports"
 	"coffeepos/internal/settings"
 	"coffeepos/internal/syncapi"
 )
@@ -29,6 +30,7 @@ type Server struct {
 	Handler http.Handler
 	Auth    *auth.Service
 	Menus   *menu.Store
+	Ledger  *ledger.Service
 }
 
 // New builds the services and routes.
@@ -44,6 +46,7 @@ func New(cfg Config) *Server {
 	settingsAPI := settings.Handlers{Pool: cfg.Pool}
 	led := &ledger.Service{Pool: cfg.Pool, Menus: menus, Now: cfg.Now}
 	sync := &syncapi.Service{Pool: cfg.Pool, Auth: a, Menus: menus, Ledger: led, Now: cfg.Now}
+	rep := &reports.Service{Pool: cfg.Pool, Now: cfg.Now}
 
 	type handler = httpx.HandlerFunc
 	device := a.RequireDevice   // an enrolled tablet
@@ -82,6 +85,12 @@ func New(cfg Config) *Server {
 	mux.Handle("GET /api/devices", manager(handler(a.HandleListDevices)))
 	mux.Handle("POST /api/devices/codes", manager(handler(a.HandleCreateCode)))
 	mux.Handle("POST /api/devices/{id}/revoke", manager(handler(a.HandleRevokeDevice)))
+	mux.Handle("GET /api/reports/sales", manager(handler(rep.HandleSales)))
+	mux.Handle("GET /api/closeouts/{date}", manager(handler(rep.HandleCloseout)))
+	mux.Handle("POST /api/closeouts/{date}", manager(handler(rep.HandleClose)))
+	mux.Handle("GET /api/flags", manager(handler(rep.HandleFlags)))
+	mux.Handle("POST /api/flags/{id}/resolve", manager(handler(rep.HandleResolveFlag)))
+	mux.Handle("GET /api/sync/rejections", manager(handler(rep.HandleRejections)))
 
 	mux.Handle("/api/", handler(func(w http.ResponseWriter, r *http.Request) error {
 		return httpx.ErrNotFound
@@ -94,5 +103,6 @@ func New(cfg Config) *Server {
 		Handler: httpx.Chain(mux, httpx.Recover, httpx.LogRequests, httpx.SecurityHeaders),
 		Auth:    a,
 		Menus:   menus,
+		Ledger:  led,
 	}
 }

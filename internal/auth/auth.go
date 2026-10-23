@@ -169,11 +169,8 @@ func cleanName(kind, name string) (string, error) {
 
 func newID() string { return uuid.Must(uuid.NewV7()).String() }
 
-// enrollLock serializes enrollments so device letters are handed out once.
-const enrollLock = 7_150_002
-
 // createDevice adds a device with the next free letter. It must run inside a
-// transaction that holds enrollLock.
+// transaction that holds db.LockEnrollment.
 func createDevice(ctx context.Context, tx db.Querier, name string, enrolledBy *string) (Device, string, error) {
 	var n int
 	if err := tx.QueryRow(ctx, "SELECT count(*) FROM devices").Scan(&n); err != nil {

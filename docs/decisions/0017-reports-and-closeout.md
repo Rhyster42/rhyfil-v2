@@ -28,3 +28,13 @@ Status: accepted · 2026-10-22
 - **Locking a closed day and rejecting late data.** Loses sales.
 - **Pre-aggregated reporting tables.** Premature: a coffee shop's whole year is
   a few hundred thousand rows.
+
+**Revised 2026-10-22:**
+- Close-out takes the same advisory lock as ingest (`db.LockLedger`), so every
+  document is either in the snapshot or flagged `after_closeout`, never
+  neither.
+- "Changed since close-out" compares the money figures and counts. Resolving
+  a flag doesn't count as a change.
+- With `POS_DEMO=1`, an empty database also gets six past days of sales,
+  pushed through the real ingest path. The seeder fails on any rejection or
+  flag, so it also tests that the server agrees with tablet-style pricing.

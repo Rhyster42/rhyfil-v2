@@ -9,6 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
+	"coffeepos/internal/db"
 	"coffeepos/internal/httpx"
 )
 
@@ -19,7 +20,7 @@ var errBadCode = &httpx.Error{Status: http.StatusUnauthorized, Code: "bad_code",
 func (s *Service) EnsureSetupCode(ctx context.Context) (string, error) {
 	var code string
 	err := pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", enrollLock); err != nil {
+		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", db.LockEnrollment); err != nil {
 			return err
 		}
 		var staff int
@@ -87,7 +88,7 @@ func (s *Service) HandleSetup(w http.ResponseWriter, r *http.Request) error {
 	var out enrolled
 	ctx := r.Context()
 	err = pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", enrollLock); err != nil {
+		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", db.LockEnrollment); err != nil {
 			return err
 		}
 		var staff int
@@ -157,7 +158,7 @@ func (s *Service) HandleEnroll(w http.ResponseWriter, r *http.Request) error {
 	var out enrolled
 	ctx := r.Context()
 	err = pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", enrollLock); err != nil {
+		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", db.LockEnrollment); err != nil {
 			return err
 		}
 		var createdBy *string

@@ -71,22 +71,25 @@ func serve() error {
 		return err
 	}
 
-	if os.Getenv("POS_DEMO") == "1" {
-		seeded, err := seed.Demo(ctx, pool, auth.DefaultPINIterations)
-		if err != nil {
-			return err
-		}
-		if seeded {
-			slog.Info("loaded demo data: Morgan (manager, PIN 1234), Sam (1111), Riley (2222)")
-		}
-	}
-
 	demoCode := os.Getenv("POS_DEMO_ENROLL_CODE")
 	app := server.New(server.Config{
 		Pool:   pool,
 		WebDir: env("POS_WEB_DIR", "web/dist"),
 		Auth:   auth.Options{DemoEnrollCode: demoCode},
 	})
+
+	if os.Getenv("POS_DEMO") == "1" {
+		seeded, err := seed.Demo(ctx, pool, auth.DefaultPINIterations)
+		if err != nil {
+			return err
+		}
+		if seeded {
+			if err := seed.DemoSales(ctx, pool, app.Ledger, 6, time.Now()); err != nil {
+				return fmt.Errorf("demo sales: %w", err)
+			}
+			slog.Info("loaded demo data: Morgan (manager, PIN 1234), Sam (1111), Riley (2222), and six days of sales")
+		}
+	}
 	if demoCode != "" {
 		slog.Warn("demo enrollment code is on: anyone who knows it can enroll a device", "code", demoCode)
 	}

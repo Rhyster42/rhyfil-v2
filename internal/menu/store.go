@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"coffeepos/internal/db"
 	"coffeepos/internal/httpx"
 )
 
@@ -112,9 +113,6 @@ func (s *Store) decode(version int64, raw []byte) (*Doc, error) {
 	return &doc, nil
 }
 
-// menuLock serializes saves so version numbers are handed out once.
-const menuLock = 7_150_003
-
 // Save validates doc and stores it as the version after base. If base isn't
 // the latest version any more, it returns ErrConflict.
 func (s *Store) Save(ctx context.Context, base int64, doc *Doc, staffID string) (int64, error) {
@@ -128,7 +126,7 @@ func (s *Store) Save(ctx context.Context, base int64, doc *Doc, staffID string) 
 	}
 	var version int64
 	err = pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
-		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", menuLock); err != nil {
+		if _, err := tx.Exec(ctx, "SELECT pg_advisory_xact_lock($1)", db.LockMenu); err != nil {
 			return err
 		}
 		var latest int64

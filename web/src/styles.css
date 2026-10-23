@@ -993,6 +993,7 @@ select.input {
 }
 .badge {
   display: inline-block;
+  margin-left: 6px;
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--surface-2);
@@ -1203,4 +1204,460 @@ select.input {
 }
 .refund-done {
   font-size: 24px;
+}
+
+/* ---------- Back office ---------- */
+
+.office {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+}
+.office-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.office-tabs button {
+  min-height: 46px;
+  padding: 0 16px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 650;
+  white-space: nowrap;
+}
+.office-tabs button[aria-current='page'] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+.office-body {
+  min-height: 0;
+  overflow-y: auto;
+}
+.office-page {
+  max-width: 1100px;
+  padding: 16px 20px 48px;
+}
+.office-page h3 {
+  margin: 24px 0 8px;
+  font-size: 17px;
+}
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.filter-row .spacer {
+  flex: 1;
+}
+.date-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.date-range .input {
+  width: auto;
+  min-height: 44px;
+}
+.range-note {
+  font-size: 14px;
+}
+.refreshing {
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+.gate-card {
+  width: min(400px, 100%);
+}
+.textarea {
+  min-height: 80px;
+  padding: 10px 14px;
+  resize: vertical;
+}
+.input-bad {
+  border-color: var(--danger);
+}
+.money-input {
+  width: 120px;
+  min-height: 44px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-weight: 600;
+}
+.check input {
+  width: 22px;
+  height: 22px;
+}
+.link-button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/* Figures: the hero and tiles use proportional digits; columns use tabular. */
+.kpis {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) 2fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.hero,
+.tile {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  text-align: left;
+  font-variant-numeric: normal;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kpis .tiles {
+  margin-bottom: 0;
+}
+.tile-label {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+}
+.hero-value {
+  font-size: 52px;
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.tile-value {
+  font-size: 26px;
+  font-weight: 650;
+}
+.tile-detail {
+  color: var(--muted);
+  font-size: 13px;
+}
+.tile-status-warn {
+  border-color: #e9b949;
+  background: #fff8e6;
+  cursor: pointer;
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 650;
+}
+.status-ok {
+  color: #1d6b3a;
+}
+.status-warn {
+  color: #8a4b00;
+}
+
+/* The hourly chart. One series: the validated coffee step #a0682d. */
+.chart {
+  --series-1: #a0682d;
+  --grid: #ece6de;
+  --axis: #cfc5b8;
+  margin: 0 0 8px;
+  padding: 14px 16px 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.chart-empty {
+  margin: 24px 0;
+}
+.chart-plot {
+  position: relative;
+}
+.chart-plot svg {
+  display: block;
+  overflow: visible;
+}
+.chart-grid {
+  stroke: var(--grid);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.chart-axis {
+  stroke: var(--axis);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+.chart-tick {
+  fill: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.chart-label {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 650;
+}
+.chart-bar {
+  fill: var(--series-1);
+}
+.chart-hit {
+  fill: transparent;
+}
+.chart-slot {
+  outline: none;
+  cursor: default;
+}
+.chart-slot.active .chart-bar {
+  fill: #b98049;
+}
+.chart-slot:focus-visible .chart-hit {
+  fill: rgb(160 104 45 / 0.08);
+}
+.chart-tooltip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  width: max-content;
+  max-width: 240px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 6px 18px rgb(40 20 0 / 0.12);
+  pointer-events: none;
+}
+.chart-tooltip strong {
+  font-size: 18px;
+}
+.chart-tooltip span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Tables */
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 0 24px;
+}
+.report-grid > section {
+  min-width: 0;
+  overflow-x: auto;
+}
+.report-grid .wide {
+  grid-column: 1 / -1;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+}
+.data-table th,
+.data-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+}
+.data-table th {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 650;
+}
+.data-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.data-table .group-row th {
+  padding-top: 14px;
+  background: transparent;
+  color: var(--text);
+}
+.data-table tr.muted td {
+  color: var(--muted);
+}
+
+/* Close-out */
+.checklist ul {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.checklist li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.drawer-table .money-input {
+  margin-left: auto;
+}
+.changed {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.changed .data-table {
+  max-width: 480px;
+}
+
+/* Flags */
+.flag-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.flag-card {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-left: 4px solid #e9b949;
+  border-radius: 12px;
+  background: var(--surface);
+}
+.flag-card header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+.flag-card p {
+  margin: 6px 0;
+}
+.flag-details {
+  margin: 4px 0 10px;
+  color: var(--muted);
+}
+.resolve-form {
+  display: grid;
+  gap: 8px;
+}
+
+/* Devices */
+.big-code {
+  margin: 12px 0;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.settings-form {
+  max-width: 640px;
+}
+
+/* Menu editor */
+.editor-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 20px;
+}
+.editor-list {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+}
+.editor-list h4 {
+  margin: 12px 0 4px;
+  padding-left: 8px;
+  border-left: 4px solid var(--cat, var(--accent));
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.editor-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font-weight: 600;
+}
+.editor-row.selected {
+  background: var(--accent-soft);
+}
+.editor-list .btn-block {
+  margin-top: 10px;
+}
+.editor-form {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+}
+.editor-rows {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.editor-rows li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.editor-rows li .input {
+  flex: 1;
+  min-height: 44px;
+}
+.editor-rows input[type='color'] {
+  width: 44px;
+  height: 44px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.arrows {
+  display: inline-flex;
+}
+.options-table .input {
+  min-height: 44px;
+}
+.qty-input {
+  width: 72px;
+}
+
+@media (max-width: 900px) {
+  .kpis,
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
 }
